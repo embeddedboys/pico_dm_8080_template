@@ -10,6 +10,6 @@ set(LCD_HOR_RES 854)
 set(LCD_VER_RES 480)
 set(DISP_OVER_PIO 1) # 1: PIO, 0: GPIO
 set(PIO_USE_DMA   1)   # 1: use DMA, 0: not use DMA
-set(I80_BUS_WR_CLK_KHZ 25000)
-math(EXPR MY_DISP_BUF_SIZE "${LCD_HOR_RES} * ${LCD_VER_RES} / 12")
+set(I80_BUS_WR_CLK_KHZ 50000)
+math(EXPR MY_DISP_BUF_SIZE "${LCD_HOR_RES} * 10")
 message(STATUS "LVGL Display Buffer Size : ${MY_DISP_BUF_SIZE} Bytes")
