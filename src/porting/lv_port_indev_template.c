@@ -93,6 +93,9 @@ void lv_port_indev_init(void)
     lv_indev_set_type(indev_touchpad, LV_INDEV_TYPE_POINTER);
     lv_indev_set_read_cb(indev_touchpad, touchpad_read);
 
+    lv_timer_t *indev_timer = lv_indev_get_read_timer(indev_touchpad);
+    lv_timer_set_period(indev_timer, 16);
+
     /*------------------
      * Mouse
      * -----------------*/
