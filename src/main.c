@@ -104,7 +104,10 @@ int main(void)
 
     lv_init();
     lv_port_disp_init();
+
+#if INDEV_DRV_USED
     lv_port_indev_init();
+#endif
 
     printf("Starting demo\n");
     // lv_example_btn_1();

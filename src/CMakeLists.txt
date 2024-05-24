@@ -26,7 +26,7 @@
 # Set all global variables here
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(OVERCLOCK_ENABLED 1)    # 1: enable, 0: disable
+set(OVERCLOCK_ENABLED 0)    # 1: enable, 0: disable
 
 if(OVERCLOCK_ENABLED)
     message(WARNING "Overclocking is enabled. This may damage your device. Use at own risk.")
@@ -81,11 +81,12 @@ math(EXPR MY_DISP_BUF_SIZE "${LCD_HOR_RES} * ${LCD_VER_RES} / 10")
 
 # LCD driver type
 set(LCD_DRV_USE_ST7789  0)
-set(LCD_DRV_USE_ILI9488 1)
+set(LCD_DRV_USE_ILI9488 0)
 set(LCD_DRV_USE_ILI9806 0)
 set(LCD_DRV_USE_R61581  0)
 set(LCD_DRV_USE_ST6201  0)
 set(LCD_DRV_USE_1P5623  0)
+set(LCD_DRV_USE_LG4572B  1)
 
 if(LCD_DRV_USE_ILI9488)
     include(${CMAKE_CURRENT_LIST_DIR}/cmake/ili9488.cmake)
@@ -97,9 +98,12 @@ elseif(LCD_DRV_USE_ST6201)
     include(${CMAKE_CURRENT_LIST_DIR}/cmake/st6201.cmake)
 elseif(LCD_DRV_USE_1P5623)
     include(${CMAKE_CURRENT_LIST_DIR}/cmake/1p5623.cmake)
+elseif(LCD_DRV_USE_LG4572B)
+    include(${CMAKE_CURRENT_LIST_DIR}/cmake/lg4572b.cmake)
 endif()
 
 # Input device driver type
+set(INDEV_DRV_USED        0)
 set(INDEV_DRV_USE_FT6236  1)
 set(INDEV_DRV_USE_NS2009  0)
 set(INDEV_DRV_USE_TSC2007 0)
@@ -137,6 +141,7 @@ file(GLOB_RECURSE COMMON_SOURCES
     tft_r61581.c
     tft_st6201.c
     tft_1p5623.c
+    tft_lg4572b.c
     indev.c
     ns2009.c
     tsc2007.c
@@ -189,8 +194,10 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC LCD_DRV_USE_ILI9806=${LCD_DRV_
 target_compile_definitions(${PROJECT_NAME} PUBLIC LCD_DRV_USE_R61581=${LCD_DRV_USE_R61581})
 target_compile_definitions(${PROJECT_NAME} PUBLIC LCD_DRV_USE_ST6201=${LCD_DRV_USE_ST6201})
 target_compile_definitions(${PROJECT_NAME} PUBLIC LCD_DRV_USE_1P5623=${LCD_DRV_USE_1P5623})
+target_compile_definitions(${PROJECT_NAME} PUBLIC LCD_DRV_USE_LG4572B=${LCD_DRV_USE_LG4572B})
 
 # Input drivers
+target_compile_definitions(${PROJECT_NAME} PUBLIC INDEV_DRV_USED=${INDEV_DRV_USED})
 target_compile_definitions(${PROJECT_NAME} PUBLIC INDEV_DRV_USE_FT6236=${INDEV_DRV_USE_FT6236})
 target_compile_definitions(${PROJECT_NAME} PUBLIC INDEV_DRV_USE_NS2009=${INDEV_DRV_USE_NS2009})
 target_compile_definitions(${PROJECT_NAME} PUBLIC INDEV_DRV_USE_TSC2007=${INDEV_DRV_USE_TSC2007})
