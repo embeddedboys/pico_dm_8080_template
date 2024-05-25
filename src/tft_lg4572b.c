@@ -35,6 +35,7 @@ static int tft_lg4572b_init_display(struct tft_priv *priv)
     mdelay(40);
     write_reg(priv, 0x20);
     write_reg(priv, 0x29);
+    write_reg(priv, 0x36, (1 << 5) | (1 << 1));
     write_reg(priv, 0x3A, 0x55);
     
     write_reg(priv, 0xB2, 0x20, 0xC8);
