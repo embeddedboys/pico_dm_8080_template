@@ -3,7 +3,7 @@ set(LCD_PIN_DB_COUNT 16) # 8080 LCD data bus pin count
 set(LCD_PIN_CS  29)  # 8080 LCD chip select pin
 set(LCD_PIN_WR  19)  # 8080 LCD write pin
 set(LCD_PIN_RS  20)  # 8080 LCD register select pin
-set(LCD_PIN_RD  18)  # 8080 LCD read pin
+set(LCD_PIN_RD  29)  # 8080 LCD read pin
 set(LCD_PIN_RST 22)  # 8080 LCD reset pin
 set(LCD_PIN_BL  28)  # 8080 LCD backlight pin
 set(LCD_HOR_RES 480)
