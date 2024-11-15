@@ -92,8 +92,10 @@ void indev_set_dir(indev_direction_t dir)
 
 static u16 __indev_read_x(struct indev_priv *priv)
 {
-    if (priv->ops->read_x)
-        return priv->ops->read_x(priv);
+    if (!priv->ops->read_x)
+        return 0;
+
+    return priv->ops->read_x(priv);
 }
 
 u16 indev_read_x(void)
@@ -103,8 +105,10 @@ u16 indev_read_x(void)
 
 static u16 __indev_read_y(struct indev_priv *priv)
 {
-    if (priv->ops->read_y)
-        return priv->ops->read_y(priv);
+    if (!priv->ops->read_y)
+        return 0;
+
+    return priv->ops->read_y(priv);
 }
 
 u16 indev_read_y(void)

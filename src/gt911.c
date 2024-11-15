@@ -116,6 +116,8 @@ static uint16_t gt911_read_x(struct indev_priv *priv)
     u16 this_x = 0;
 
     read_addr16(priv, GT911_REG_TP1_X, (u8  *)&this_x, sizeof(this_x));
+    if (priv->invert_x)
+        this_x = priv->x_res - this_x;
     pr_debug("this_x : %d\n", this_x);
 
     return this_x;
@@ -126,6 +128,8 @@ static uint16_t gt911_read_y(struct indev_priv *priv)
     u16 this_y = 0;
 
     read_addr16(priv, GT911_REG_TP1_Y, (u8  *)&this_y, sizeof(this_y));
+    if (priv->invert_y)
+        this_y = priv->y_res - this_y;
     pr_debug("this_y : %d\n", this_y);
 
     return this_y;
@@ -181,7 +185,7 @@ static void gt911_hw_init(struct indev_priv *priv)
     gpio_set_dir(priv->spec->pin_irq, GPIO_IN);
     gpio_pull_down(priv->spec->pin_irq);
 
-    i2c_bus_scan(priv->spec->i2c.master);
+    // i2c_bus_scan(priv->spec->i2c.master);
 
     u8 temp[5];
     read_addr16(priv, GT911_REG_PID, temp, 4);
@@ -200,11 +204,11 @@ static void gt911_hw_init(struct indev_priv *priv)
         write_addr16(priv, GT911_REG_CTRL, temp, 1);
     }
 
-    // priv->ops->set_dir(priv, INDEV_DIR_SWITCH_XY | INDEV_DIR_INVERT_Y);
+    priv->ops->set_dir(priv, INDEV_DIR_SWITCH_XY | INDEV_DIR_INVERT_Y);
 }
 
 static struct indev_spec gt911 = {
-    .name = "ft6236",
+    .name = "gt911",
     .type = INDEV_TYPE_POINTER,
 
     .i2c = {
