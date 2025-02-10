@@ -27,10 +27,14 @@
 
 #if INDEV_DRV_USE_GT911
 
-#define GT911_PIN_SCL   27
-#define GT911_PIN_SDA   26
-#define GT911_PIN_RST   18
-#define GT911_PIN_IRQ   21
+// #define GT911_PIN_SCL   27
+// #define GT911_PIN_SDA   26
+// #define GT911_PIN_RST   18
+// #define GT911_PIN_IRQ   21
+#define GT911_PIN_SCL   19
+#define GT911_PIN_SDA   18
+#define GT911_PIN_RST   27
+#define GT911_PIN_IRQ   26
 
 #define GT911_CMD_WR    0x28
 #define GT911_CMD_RD    0x29
@@ -143,7 +147,7 @@ static bool gt911_is_pressed(struct indev_priv *priv)
     gt911_write_addr16(priv, GT911_REG_GSTID, (u8 []){0x00}, 1);
     if (state & 0x80)
         return true;
-    
+
     return false;
 }
 
@@ -204,7 +208,7 @@ static void gt911_hw_init(struct indev_priv *priv)
         write_addr16(priv, GT911_REG_CTRL, temp, 1);
     }
 
-    priv->ops->set_dir(priv, INDEV_DIR_SWITCH_XY | INDEV_DIR_INVERT_Y);
+    // priv->ops->set_dir(priv, INDEV_DIR_SWITCH_XY | INDEV_DIR_INVERT_Y);
 }
 
 static struct indev_spec gt911 = {

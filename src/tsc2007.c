@@ -137,6 +137,29 @@ bool tsc2007_is_pressed(struct indev_priv *priv)
     return !gpio_get(priv->spec->pin_irq);
 }
 
+static void tsc2007_set_dir(struct indev_priv *priv, uint8_t rotate)
+{
+    switch(rotate) {
+    case INDEV_ROTATE_0:
+        priv->dir = INDEV_DIR_INVERT_Y | INDEV_DIR_INVERT_X;
+        break;
+    case INDEV_ROTATE_90:
+        priv->dir = INDEV_DIR_SWITCH_XY | INDEV_DIR_INVERT_X | INDEV_DIR_INVERT_Y;
+        break;
+    case INDEV_ROTATE_180:
+        priv->dir = INDEV_DIR_INVERT_X;
+        break;
+    case INDEV_ROTATE_270:
+        priv->dir = INDEV_DIR_SWITCH_XY;
+        break;
+    default:
+        printf("Rotate %d not supported\n", rotate);
+        break;
+    }
+
+    priv->ops->update_dir(priv, priv->dir);
+}
+
 static void tsc2007_hw_init(struct indev_priv *priv)
 {
     i2c_init(priv->spec->i2c.master, priv->spec->i2c.speed);
@@ -156,8 +179,8 @@ static void tsc2007_hw_init(struct indev_priv *priv)
 
     i2c_bus_scan(priv->spec->i2c.master);
 
-    priv->ops->reset(priv);
-    priv->ops->set_dir(priv, INDEV_DIR_SWITCH_XY | INDEV_DIR_INVERT_Y | INDEV_DIR_INVERT_X);
+    // priv->ops->reset(priv);
+    // priv->ops->set_dir(priv, INDEV_DIR_SWITCH_XY | INDEV_DIR_INVERT_Y | INDEV_DIR_INVERT_X);
 }
 
 static struct indev_spec tsc2007 = {
@@ -186,6 +209,7 @@ static struct indev_spec tsc2007 = {
         .read_reg   = tsc2007_read_reg,
         .init       = tsc2007_hw_init,
         .is_pressed = tsc2007_is_pressed,
+        .set_dir    = tsc2007_set_dir,
         .read_x     = tsc2007_read_x,
         .read_y     = tsc2007_read_y,
     },

@@ -34,7 +34,7 @@ static int tft_st7789_init_display(struct tft_priv *priv)
     write_reg(priv, 0x11);
     mdelay(120);
 
-    write_reg(priv, 0x36, 0x00);
+    // write_reg(priv, 0x36, 0x00);
 
     write_reg(priv, 0x3A, 0x05);
 
@@ -71,13 +71,40 @@ static int tft_st7789_init_display(struct tft_priv *priv)
     return 0;
 }
 
+/* TODO: update the rotation properly */
+static int tft_set_dir(struct tft_priv *priv, u8 dir)
+{
+    printf("setting display rotation to %d\n", dir);
+
+    switch (dir) {
+    case LCD_ROTATE_0:
+        write_reg(priv, MADCTL, BGR);
+        break;
+    case LCD_ROTATE_90:
+        write_reg(priv, MADCTL, MV);
+        break;
+    case LCD_ROTATE_180:
+        write_reg(priv, MADCTL, MY);
+        break;
+    case LCD_ROTATE_270:
+        write_reg(priv, MADCTL, MY | MX | MV);
+        break;
+    default:
+        break;
+    }
+
+    return 0;
+}
+
 static struct tft_display st7789 = {
     .xres = TFT_X_RES,
     .yres = TFT_Y_RES,
     .bpp  = 16,
+    .rotate = LCD_ROTATION,
     .backlight = 100,
     .tftops = {
         .write_reg    = tft_write_reg8,
+        .set_dir = tft_set_dir,
         .init_display = tft_st7789_init_display,
     },
 };

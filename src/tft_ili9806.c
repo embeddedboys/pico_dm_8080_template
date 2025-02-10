@@ -132,6 +132,7 @@ static struct tft_display ili9806 = {
     .xres   = TFT_X_RES,
     .yres   = TFT_Y_RES,
     .bpp    = 16,
+    .rotate = LCD_ROTATION,
     .backlight = 100,
     .tftops = {
 #if LCD_PIN_DB_COUNT == 8

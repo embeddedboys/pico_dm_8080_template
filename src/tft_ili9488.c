@@ -31,6 +31,7 @@ static int tft_ili9488_init_display(struct tft_priv *priv)
     // dm_gpio_set_value(priv->gpio.rd, 1);
     // mdelay(120);
 
+#if TFT_MODEL_QD3503728
     // Positive Gamma Control
     write_reg(priv, 0xE0, 0x00, 0x03, 0x09, 0x08, 0x16, 0x0A, 0x3F, 0x78, 0x4C, 0x09, 0x0A, 0x08, 0x16, 0x1A, 0x0F);
 
@@ -40,7 +41,8 @@ static int tft_ili9488_init_display(struct tft_priv *priv)
     write_reg(priv, 0xC0, 0x17, 0x15);          // Power Control 1
     write_reg(priv, 0xC1, 0x41);                // Power Control 2
     write_reg(priv, 0xC5, 0x00, 0x12, 0x80);    // VCOM Control
-    write_reg(priv, 0x36, 0x28);                // Memory Access Control
+    // write_reg(priv, 0x36, 0x28);                // Memory Access Control
+    write_reg(priv, 0x36, 0x08);                // Memory Access Control
     write_reg(priv, 0x3A, 0x55);                // Pixel Interface Format RGB565 8080 16-bit
     write_reg(priv, 0xB0, 0x00);                // Interface Mode Control
 
@@ -55,6 +57,54 @@ static int tft_ili9488_init_display(struct tft_priv *priv)
     write_reg(priv, 0x11);                      // Exit Sleep
     mdelay(60);
     write_reg(priv, 0x29);                      // Display on
+#elif TFT_MODEL_ZT350IT008
+    // Positive Gamma Control
+    write_reg(priv, 0xE0, 0x00, 0x07, 0x10, 0x09, 0x17, 0x0B, 0x40, 0x8A, 0x4B, 0x0A, 0x0D, 0x0F, 0x15, 0x16, 0x0F);
+
+    // Negative Gamma Control
+    write_reg(priv, 0xE1, 0x00, 0x1A, 0x1B, 0x02, 0x0D, 0x05, 0x30, 0x35, 0x43, 0x02, 0x0A, 0x09, 0x32, 0x36, 0x0F);
+
+    write_reg(priv, 0xB1, 0xA0);
+    write_reg(priv, 0xB4, 0x02);
+    write_reg(priv, 0xC0, 0x17, 0x15);
+    write_reg(priv, 0xC1, 0x41);
+    write_reg(priv, 0xC5, 0x00, 0x30, 0x80);
+    write_reg(priv, 0xB6, 0x02);
+    // write_reg(priv, 0x36, 0x48);
+    write_reg(priv, 0x36, 0x28);                // Memory Access Control
+    write_reg(priv, 0x3A, 0x55);
+    write_reg(priv, 0xE9, 0x00);
+    write_reg(priv, 0xF7, 0xA9, 0x51, 0x2C, 0x82);
+    write_reg(priv, 0x11);
+    mdelay(120);
+    write_reg(priv, 0x29);
+#else
+    #error "Unknown LCD model"
+#endif
+
+    return 0;
+}
+
+static int tft_set_dir(struct tft_priv *priv, u8 dir)
+{
+    printf("setting display rotation to %d\n", dir);
+
+    switch (dir) {
+    case LCD_ROTATE_0:
+        write_reg(priv, MADCTL, MX | BGR);
+        break;
+    case LCD_ROTATE_90:
+        write_reg(priv, MADCTL, MV | BGR);
+        break;
+    case LCD_ROTATE_180:
+        write_reg(priv, MADCTL, MY | BGR);
+        break;
+    case LCD_ROTATE_270:
+        write_reg(priv, MADCTL, MX | MY | MV | BGR);
+        break;
+    default:
+        break;
+    }
 
     return 0;
 }
@@ -91,6 +141,7 @@ static struct tft_display ili9488 = {
     .xres   = TFT_X_RES,
     .yres   = TFT_Y_RES,
     .bpp    = 16,
+    .rotate = LCD_ROTATION,
     .backlight = 100,
     .tftops = {
 #if LCD_PIN_DB_COUNT == 8

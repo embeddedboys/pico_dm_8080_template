@@ -37,6 +37,23 @@ typedef unsigned int u32;
 typedef unsigned short u16;
 typedef unsigned char u8;
 
+enum {
+    LCD_ROTATE_0,
+    LCD_ROTATE_90,
+    LCD_ROTATE_180,
+    LCD_ROTATE_270
+};
+#define BIT(nr)			(1UL << (nr))
+#define MADCTL 0x36
+#define MY  BIT(7)
+#define MX  BIT(6)
+#define MV  BIT(5)
+#define ML  BIT(4)
+#define BGR BIT(3)
+#define MH  BIT(2)
+#define FH  BIT(1)
+#define FV  BIT(0)
+
 struct tft_ops {
     void (*write_reg)(struct tft_priv *priv, int len, ...);
     void (*write_vmem)(struct tft_priv *priv, void *vmem, size_t len);
@@ -45,6 +62,7 @@ struct tft_ops {
     int (*reset)(struct tft_priv *priv);
     int (*clear)(struct tft_priv *priv, u16 clear);
     int (*sleep)(struct tft_priv *priv, bool on);
+    int (*set_dir)(struct tft_priv *priv, u8 dir);
     int (*set_backlight)(struct tft_priv *priv, uint level);
     void (*set_addr_win)(struct tft_priv *priv, int xs, int ys, int xe, int ye);
     void (*video_sync)(struct tft_priv *priv, int xs, int ys, int xe, int ye, void *vmem, size_t len);

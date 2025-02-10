@@ -6,8 +6,8 @@ set(LCD_PIN_RS  20)  # 8080 LCD register select pin
 set(LCD_PIN_RD  14)  # 8080 LCD read pin
 set(LCD_PIN_RST 18)  # 8080 LCD reset pin
 set(LCD_PIN_BL  28)  # 8080 LCD backlight pin
-set(LCD_HOR_RES 480)
-set(LCD_VER_RES 320)
+set(LCD_X_RES 320)
+set(LCD_Y_RES 480)
 set(DISP_OVER_PIO 1) # 1: PIO, 0: GPIO
 set(PIO_USE_DMA   1)   # 1: use DMA, 0: not use DMA
 set(I80_BUS_WR_CLK_KHZ 25000)

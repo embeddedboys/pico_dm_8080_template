@@ -56,7 +56,7 @@ static int tft_r61581_init_display(struct tft_priv *priv)
     write_reg(priv, 0xC6, 0x00);
     write_reg(priv, 0xC8, 0x03, 0x03, 0x13, 0x5C, 0x03, 0x07, 0x14, 0x08, 0x00, 0x21, 0x08, 0x14, 0x07, 0x53, 0x0C, 0x13, 0x03, 0x03, 0x21, 0x00);
     write_reg(priv, 0x0C, 0x55);
-    write_reg(priv, 0x36, (1 << 6) | (1 << 5));
+    // write_reg(priv, 0x36, (1 << 6) | (1 << 5));
     write_reg(priv, 0x38);
     write_reg(priv, 0x3A, 0x55);
     write_reg(priv, 0xD0, 0x07, 0x07, 0x1D, 0x03);
@@ -124,6 +124,28 @@ static int tft_r61581_init_display(struct tft_priv *priv)
 }
 #endif
 
+static int tft_set_dir(struct tft_priv *priv, u8 dir)
+{
+    switch (dir) {
+    case LCD_ROTATE_0:
+        write_reg(priv, MADCTL, MX);
+        break;
+    case LCD_ROTATE_90:
+        write_reg(priv, MADCTL, MX | MV);
+        break;
+    case LCD_ROTATE_180:
+        write_reg(priv, MADCTL, MY | MX);
+        break;
+    case LCD_ROTATE_270:
+        write_reg(priv, MADCTL, MY | MV);
+        break;
+    default:
+        break;
+    }
+
+    return 0;
+}
+
 static int tft_clear(struct tft_priv *priv, u16 clear)
 {
     u32 width =  priv->display->xres;
@@ -175,10 +197,12 @@ static struct tft_display r61581 = {
     .xres   = TFT_X_RES,
     .yres   = TFT_Y_RES,
     .bpp    = 16,
+    .rotate = LCD_ROTATION,
     .backlight = 100,
     .tftops = {
         .write_reg = tft_write_reg8,
         .init_display = tft_r61581_init_display,
+        .set_dir = tft_set_dir,
         .clear = tft_clear,
         .video_sync = tft_video_sync,
     },

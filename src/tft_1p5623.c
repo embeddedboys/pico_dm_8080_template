@@ -80,6 +80,28 @@ static int tft_1p5623_init_display(struct tft_priv *priv)
     return 0;
 }
 
+static int tft_set_dir(struct tft_priv *priv, u8 dir)
+{
+    switch (dir) {
+    case LCD_ROTATE_0:
+        write_reg(priv, MADCTL, FH | BGR);
+        break;
+    case LCD_ROTATE_90:
+        write_reg(priv, MADCTL, MV | BGR);
+        break;
+    case LCD_ROTATE_180:
+        write_reg(priv, MADCTL, FV | BGR);
+        break;
+    case LCD_ROTATE_270:
+        write_reg(priv, MADCTL, FV | FH | MV | BGR);
+        break;
+    default:
+        break;
+    }
+
+    return 0;
+}
+
 #if LCD_PIN_DB_COUNT == 8
 static void tft_video_sync(struct tft_priv *priv, int xs, int ys, int xe, int ye, void *vmem, size_t len)
 {
@@ -112,6 +134,7 @@ static struct tft_display tft_1p5623 = {
     .xres   = TFT_X_RES,
     .yres   = TFT_Y_RES,
     .bpp    = 16,
+    .rotate = LCD_ROTATION,
     .backlight = 100,
     .tftops = {
 #if LCD_PIN_DB_COUNT == 8
@@ -120,6 +143,7 @@ static struct tft_display tft_1p5623 = {
 #else
         .write_reg = tft_write_reg16,
 #endif
+        .set_dir = tft_set_dir,
         .init_display = tft_1p5623_init_display,
     },
 };

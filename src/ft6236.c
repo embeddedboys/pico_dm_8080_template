@@ -103,7 +103,7 @@ static void ft6236_hw_init(struct indev_priv *priv)
     priv->ops->reset(priv);
     priv->ops->set_dir(priv, INDEV_DIR_SWITCH_XY | INDEV_DIR_INVERT_Y);
 
-    i2c_bus_scan(priv->spec->i2c.master);
+    // i2c_bus_scan(priv->spec->i2c.master);
 
     /* registers are read-only */
     // write_reg(priv, FT_REG_DEVICE_MODE, 0x00);

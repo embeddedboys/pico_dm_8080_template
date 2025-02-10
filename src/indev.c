@@ -42,7 +42,7 @@ static void swap_float(float *a, float *b)
     *b = temp;
 }
 
-static void __indev_set_dir(struct indev_priv *priv, indev_direction_t dir)
+static void __indev_update_dir(struct indev_priv *priv, indev_direction_t dir)
 {
     priv->dir = dir;
 
@@ -85,9 +85,31 @@ static void __indev_set_dir(struct indev_priv *priv, indev_direction_t dir)
     }
 }
 
-void indev_set_dir(indev_direction_t dir)
+static void __indev_set_dir(struct indev_priv *priv, uint8_t rotate)
 {
-    __indev_set_dir(&g_indev_priv, dir);
+    switch(rotate) {
+    case INDEV_ROTATE_0:
+        priv->dir = 0;
+        break;
+    case INDEV_ROTATE_90:
+        priv->dir = INDEV_DIR_SWITCH_XY | INDEV_DIR_INVERT_Y;
+        break;
+    case INDEV_ROTATE_180:
+        priv->dir = INDEV_DIR_INVERT_X | INDEV_DIR_INVERT_Y;
+        break;
+    case INDEV_ROTATE_270:
+        priv->dir = INDEV_DIR_SWITCH_XY | INDEV_DIR_INVERT_X;
+        break;
+    default:
+        break;
+    }
+
+    priv->ops->update_dir(&g_indev_priv, priv->dir);
+}
+
+void indev_set_dir(uint8_t rotate)
+{
+    __indev_set_dir(&g_indev_priv, rotate);
 }
 
 static u16 __indev_read_x(struct indev_priv *priv)
@@ -182,11 +204,13 @@ int indev_probe(struct indev_spec *spec)
 
     priv->x_res = LCD_HOR_RES;
     priv->y_res = LCD_VER_RES;
+    priv->rotate = LCD_ROTATION;
 
     priv->invert_x = false;
     priv->invert_y = false;
 
     priv->ops->reset = indev_reset;
+    priv->ops->update_dir = __indev_update_dir;
     priv->ops->set_dir = __indev_set_dir;
 
     float tft_x = LCD_HOR_RES;
@@ -203,6 +227,7 @@ int indev_probe(struct indev_spec *spec)
     indev_merge_ops(priv->ops, &spec->ops);
 
     priv->ops->init(priv);
+    priv->ops->set_dir(priv, priv->rotate);
 
     return 0;
 }

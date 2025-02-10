@@ -30,6 +30,13 @@
 #define TOUCH_X_RES LCD_HOR_RES
 #define TOUCH_Y_RES LCD_VER_RES
 
+enum {
+    INDEV_ROTATE_0,
+    INDEV_ROTATE_90,
+    INDEV_ROTATE_180,
+    INDEV_ROTATE_270
+};
+
 #define ARRAY_SIZE(arr) (sizeof(arr)/sizeof(arr[0]))
 #define udelay(v)   busy_wait_us(v)
 #define mdelay(v)   busy_wait_ms(v)
@@ -77,7 +84,8 @@ struct indev_ops {
 
     void    (*init)(struct indev_priv *priv);
     void    (*reset)(struct indev_priv *priv);
-    void    (*set_dir)(struct indev_priv *priv, indev_direction_t dir);
+    void    (*update_dir)(struct indev_priv *priv, indev_direction_t dir);
+    void    (*set_dir)(struct indev_priv *priv, uint8_t rotate);
     bool    (*is_pressed)(struct indev_priv *priv);
     u16     (*read_x)(struct indev_priv *priv);
     u16     (*read_y)(struct indev_priv *priv);
@@ -125,6 +133,7 @@ struct indev_priv {
     float               sc_x;     /* scaling constant for x_res */
     float               sc_y;     /* scaling constant for y_res */
 
+    u32                 rotate;
     indev_direction_t   dir;
     bool                invert_x;
     bool                invert_y;
@@ -136,7 +145,7 @@ struct indev_priv {
 
 extern int indev_driver_init(void);
 extern int indev_probe(struct indev_spec *spec);
-extern void indev_set_dir(indev_direction_t dir);
+extern void indev_set_dir(uint8_t rotate);
 extern bool indev_is_pressed(void);
 extern u16 indev_read_x(void);
 extern u16 indev_read_y(void);

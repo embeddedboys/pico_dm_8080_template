@@ -34,7 +34,7 @@ static int tft_st6201_init_display(struct tft_priv *priv)
     write_reg(priv, 0xFF, 0xA5);
     write_reg(priv, 0xE7, 0x10);    // TE output EN
     write_reg(priv, 0x35, 0x00);    // TE interface EN
-    write_reg(priv, 0x36, 0xC0);
+    // write_reg(priv, 0x36, 0xC0);
     write_reg(priv, 0x3A, 0x01);    // 01---RGB565 / 00---RGB666
     write_reg(priv, 0x40, 0x01);    // 01: IPS / 00 : TN
     write_reg(priv, 0x41, 0x03);    // 01 8Bit // 03 -- 16Bit
@@ -146,6 +146,28 @@ static int tft_st6201_init_display(struct tft_priv *priv)
     return 0;
 }
 
+static int tft_set_dir(struct tft_priv *priv, u8 dir)
+{
+    switch (dir) {
+    case LCD_ROTATE_0:
+        write_reg(priv, MADCTL, MY | MX);
+        break;
+    case LCD_ROTATE_90:
+        write_reg(priv, MADCTL, MV | MY);
+        break;
+    case LCD_ROTATE_180:
+        write_reg(priv, MADCTL, 0);
+        break;
+    case LCD_ROTATE_270:
+        write_reg(priv, MADCTL, MX | MV);
+        break;
+    default:
+        break;
+    }
+
+    return 0;
+}
+
 #if LCD_PIN_DB_COUNT == 8
 static void tft_video_sync(struct tft_priv *priv, int xs, int ys, int xe, int ye, void *vmem, size_t len)
 {
@@ -178,6 +200,7 @@ static struct tft_display st6201 = {
     .xres   = TFT_X_RES,
     .yres   = TFT_Y_RES,
     .bpp    = 16,
+    .rotate = LCD_ROTATION,
     .backlight = 100,
     .tftops = {
 #if LCD_PIN_DB_COUNT == 8
@@ -186,6 +209,7 @@ static struct tft_display st6201 = {
 #else
         .write_reg = tft_write_reg16,
 #endif
+        .set_dir = tft_set_dir,
         .init_display = tft_st6201_init_display,
     },
 };

@@ -30,39 +30,61 @@ static int tft_lg4572b_init_display(struct tft_priv *priv)
     priv->tftops->reset(priv);
     dm_gpio_set_value(priv->gpio.rd, 1);
     mdelay(150);
-    
+
     write_reg(priv, 0x11);
     mdelay(40);
     write_reg(priv, 0x20);
     write_reg(priv, 0x29);
     write_reg(priv, 0x36, (1 << 5) | (1 << 1));
     write_reg(priv, 0x3A, 0x55);
-    
+
     write_reg(priv, 0xB2, 0x20, 0xC8);
     write_reg(priv, 0xB3, 0x00);
     write_reg(priv, 0xB4, 0x04);
     write_reg(priv, 0xB5, 0x10);
     write_reg(priv, 0xB6, 0x01, 0x18, 0x02, 0x40, 0x10, 0x00);
     write_reg(priv, 0xB7, 0x46, 0x06, 0x0C, 0x00, 0x00);
-    
+
     write_reg(priv, 0xC0, 0x01, 0x11);
     write_reg(priv, 0xC3, 0x07, 0x03, 0x04, 0x05, 0x04);
     write_reg(priv, 0xC4, 0x32, 0x24, 0x10, 0x10, 0x01, 0x0A);
     write_reg(priv, 0xC5, 0x6A);
     write_reg(priv, 0xC6, 0x24, 0x50);
-    
+
     write_reg(priv, 0xD0, 0x02, 0x76, 0x54, 0x15, 0x12, 0x03, 0x42, 0x43, 0x03);
-    
+
     write_reg(priv, 0xD2, 0x02, 0x76, 0x54, 0x15, 0x12, 0x03, 0x42, 0x43, 0x03);
-    
+
     write_reg(priv, 0xD4, 0x02, 0x76, 0x54, 0x15, 0x12, 0x03, 0x42, 0x43, 0x03);
-    
+
     write_reg(priv, 0xD1, 0x02, 0x76, 0x54, 0x15, 0x12, 0x03, 0x42, 0x43, 0x03);
-    
+
     write_reg(priv, 0xD3, 0x02, 0x76, 0x54, 0x15, 0x12, 0x03, 0x42, 0x43, 0x03);
-    
+
     write_reg(priv, 0xD5, 0x02, 0x76, 0x54, 0x15, 0x12, 0x03, 0x42, 0x43, 0x03);
     mdelay(60);
+
+    return 0;
+}
+
+static int tft_set_dir(struct tft_priv *priv, u8 dir)
+{
+    switch (dir) {
+    case LCD_ROTATE_0:
+        write_reg(priv, MADCTL, 0);
+        break;
+    case LCD_ROTATE_90:
+        write_reg(priv, MADCTL, MV | FH);
+        break;
+    case LCD_ROTATE_180:
+        write_reg(priv, MADCTL, FH | FV);
+        break;
+    case LCD_ROTATE_270:
+        write_reg(priv, MADCTL, MV | FV);
+        break;
+    default:
+        break;
+    }
 
     return 0;
 }
@@ -71,9 +93,11 @@ static struct tft_display lg4572b = {
     .xres   = TFT_X_RES,
     .yres   = TFT_Y_RES,
     .bpp    = 16,
+    .rotate = LCD_ROTATION,
     .backlight = 100,
     .tftops = {
         .write_reg = tft_write_reg16,
+        .set_dir = tft_set_dir,
         .init_display = tft_lg4572b_init_display,
     },
 };

@@ -84,7 +84,7 @@ else()  # OVERCLOCK_ENABLED
 
 endif() # OVERCLOCK_ENABLED
 
-# LCD Pins for 8080 interface
+# Default configurations for 8080 interface LCD Pins
 set(LCD_PIN_DB_BASE  0)  # 8080 LCD data bus base pin
 set(LCD_PIN_DB_COUNT 16) # 8080 LCD data bus pin count
 set(LCD_PIN_CS  18)  # 8080 LCD chip select pin
@@ -93,25 +93,18 @@ set(LCD_PIN_RS  20)  # 8080 LCD register select pin
 set(LCD_PIN_RD  21)  # 8080 LCD read pin
 set(LCD_PIN_RST 22)  # 8080 LCD reset pin
 set(LCD_PIN_BL  28)  # 8080 LCD backlight pin
-set(LCD_HOR_RES 480)
-set(LCD_VER_RES 320)
 set(DISP_OVER_PIO 1) # 1: PIO, 0: GPIO
 set(PIO_USE_DMA   1)   # 1: use DMA, 0: not use DMA
 set(I80_BUS_WR_CLK_KHZ 18000)
-if(${PICO_BOARD} STREQUAL "pico" OR ${PICO_PLATFORM} STREQUAL "rp2040")
-    math(EXPR MY_DISP_BUF_SIZE "${LCD_HOR_RES} * ${LCD_VER_RES} / 4")
-elseif(${PICO_BOARD} STREQUAL "pico2" OR ${PICO_PLATFORM} STREQUAL "rp2350")
-    math(EXPR MY_DISP_BUF_SIZE "${LCD_HOR_RES} * ${LCD_VER_RES} / 2")
-endif()
 
 # LCD driver type
-set(LCD_DRV_USE_ST7789  0)
 set(LCD_DRV_USE_ILI9488 1)
 set(LCD_DRV_USE_ILI9806 0)
 set(LCD_DRV_USE_R61581  0)
 set(LCD_DRV_USE_ST6201  0)
 set(LCD_DRV_USE_1P5623  0)
-set(LCD_DRV_USE_LG4572B  0)
+set(LCD_DRV_USE_LG4572B 0)
+set(LCD_DRV_USE_ST7789  0)
 
 if(LCD_DRV_USE_ILI9488)
     include(${CMAKE_CURRENT_LIST_DIR}/cmake/ili9488.cmake)
@@ -125,6 +118,31 @@ elseif(LCD_DRV_USE_1P5623)
     include(${CMAKE_CURRENT_LIST_DIR}/cmake/1p5623.cmake)
 elseif(LCD_DRV_USE_LG4572B)
     include(${CMAKE_CURRENT_LIST_DIR}/cmake/lg4572b.cmake)
+elseif(LCD_DRV_USE_ST7789)
+    include(${CMAKE_CURRENT_LIST_DIR}/cmake/st7789.cmake)
+endif()
+
+# Rotation configuration
+set(LCD_ROTATION 1)  # 0: normal, 1: 90 degree, 2: 180 degree, 3: 270 degree
+if(${LCD_ROTATION} EQUAL 0 OR ${LCD_ROTATION} EQUAL 2)
+    set(LCD_HOR_RES ${LCD_X_RES})
+    set(LCD_VER_RES ${LCD_Y_RES})
+elseif(${LCD_ROTATION} EQUAL 1 OR ${LCD_ROTATION} EQUAL 3)
+    set(LCD_HOR_RES ${LCD_Y_RES})
+    set(LCD_VER_RES ${LCD_X_RES})
+else()
+    message(FATAL_ERROR "ERROR: Invalid display rotation")
+endif()
+
+# Display buffer size configuration
+if(DEFINED MY_DISP_BUF_SIZE AND NOT "${MY_DISP_BUF_SIZE}" STREQUAL "")
+    message(WARNING "User defined display buffer size is used.")
+else()
+    if(${PICO_BOARD} STREQUAL "pico" OR ${PICO_PLATFORM} STREQUAL "rp2040")
+    math(EXPR MY_DISP_BUF_SIZE "${LCD_HOR_RES} * ${LCD_VER_RES} / 4")
+    elseif(${PICO_BOARD} STREQUAL "pico2" OR ${PICO_PLATFORM} STREQUAL "rp2350")
+    math(EXPR MY_DISP_BUF_SIZE "${LCD_HOR_RES} * ${LCD_VER_RES} / 2")
+    endif()
 endif()
 
 # Input device driver type
@@ -141,6 +159,7 @@ include_directories(. ../include)
 
 # add lvgl library here
 add_subdirectory(lvgl)
+target_compile_definitions(lvgl PRIVATE LCD_PIN_DB_COUNT=${LCD_PIN_DB_COUNT})
 
 # lv_conf.h need pico header files e.g. the custom tick
 # target_link_libraries(lvgl PUBLIC pico_stdlib)
@@ -207,19 +226,20 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC LCD_PIN_RS=${LCD_PIN_RS})
 target_compile_definitions(${PROJECT_NAME} PUBLIC LCD_PIN_RD=${LCD_PIN_RD})
 target_compile_definitions(${PROJECT_NAME} PUBLIC LCD_PIN_RST=${LCD_PIN_RST})
 target_compile_definitions(${PROJECT_NAME} PUBLIC LCD_PIN_BL=${LCD_PIN_BL})
+target_compile_definitions(${PROJECT_NAME} PUBLIC LCD_ROTATION=${LCD_ROTATION})
 target_compile_definitions(${PROJECT_NAME} PUBLIC LCD_HOR_RES=${LCD_HOR_RES})
 target_compile_definitions(${PROJECT_NAME} PUBLIC LCD_VER_RES=${LCD_VER_RES})
 target_compile_definitions(${PROJECT_NAME} PUBLIC DISP_OVER_PIO=${DISP_OVER_PIO})
 target_compile_definitions(${PROJECT_NAME} PUBLIC MY_DISP_BUF_SIZE=${MY_DISP_BUF_SIZE})
 
 # TFT drivers
-target_compile_definitions(${PROJECT_NAME} PUBLIC LCD_DRV_USE_ST7789=${LCD_DRV_USE_ST7789})
 target_compile_definitions(${PROJECT_NAME} PUBLIC LCD_DRV_USE_ILI9488=${LCD_DRV_USE_ILI9488})
 target_compile_definitions(${PROJECT_NAME} PUBLIC LCD_DRV_USE_ILI9806=${LCD_DRV_USE_ILI9806})
 target_compile_definitions(${PROJECT_NAME} PUBLIC LCD_DRV_USE_R61581=${LCD_DRV_USE_R61581})
 target_compile_definitions(${PROJECT_NAME} PUBLIC LCD_DRV_USE_ST6201=${LCD_DRV_USE_ST6201})
 target_compile_definitions(${PROJECT_NAME} PUBLIC LCD_DRV_USE_1P5623=${LCD_DRV_USE_1P5623})
 target_compile_definitions(${PROJECT_NAME} PUBLIC LCD_DRV_USE_LG4572B=${LCD_DRV_USE_LG4572B})
+target_compile_definitions(${PROJECT_NAME} PUBLIC LCD_DRV_USE_ST7789=${LCD_DRV_USE_ST7789})
 
 # Input drivers
 target_compile_definitions(${PROJECT_NAME} PUBLIC INDEV_DRV_USED=${INDEV_DRV_USED})
@@ -251,9 +271,14 @@ math(EXPR FLASH_CLK_KHZ "${SYS_CLK_KHZ} / ${PICO_FLASH_SPI_CLKDIV}")
 math(EXPR FLASH_CLK_MHZ "${FLASH_CLK_KHZ} / 1000")
 math(EXPR SYS_CLK_MHZ "${SYS_CLK_KHZ} / 1000")
 math(EXPR DISP_BUF_SIZE "${MY_DISP_BUF_SIZE} * 2") # rgb565 cost 2 bytes
+math(EXPR I80_BUS_WR_CLK_MHZ "${I80_BUS_WR_CLK_KHZ} / 1000")
 message(WARNING "
     CPU speed   : ${SYS_CLK_MHZ} MHz
     Flash speed : ${FLASH_CLK_MHZ} MHz
+    LCD_X       : ${LCD_HOR_RES}
+    LCD_Y       : ${LCD_VER_RES}
+    LCD rotation: ${LCD_ROTATION}   //0: normal, 1: 90 degree, 2: 180 degree, 3: 270 degree
+    BUS speed   : ${I80_BUS_WR_CLK_MHZ} MHz
     Buffer size : ${DISP_BUF_SIZE} bytes (LVGL Draw Buffer)
 ")
 target_compile_definitions(bs2_default PRIVATE PICO_FLASH_SPI_CLKDIV=${PICO_FLASH_SPI_CLKDIV})
