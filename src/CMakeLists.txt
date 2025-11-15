@@ -23,7 +23,7 @@
 # using the CMake build system. You can find the documentation of CMake at
 # https:#cmake.org/cmake/help/latest/index.html
 
-set(OVERCLOCK_ENABLED 1)    # 1: enable, 0: disable
+set(OVERCLOCK_ENABLED 0)    # 1: enable, 0: disable
 
 if(OVERCLOCK_ENABLED)
 
@@ -60,7 +60,7 @@ if(OVERCLOCK_ENABLED)
     elseif(${PICO_BOARD} STREQUAL "pico2" OR ${PICO_PLATFORM} STREQUAL "rp2350")
         # Overclocking profiles
         #      SYS_CLK  | FLASH_CLK | Voltage
-        #  1  | 366MHz  |  183MHz   |  1.20(V)
+        #  1  | 366MHz  |  122MHz   |  1.20(V)
         set(OVERCLOCK_PROFILE 1)
 
         if(OVERCLOCK_PROFILE EQUAL 1)
@@ -147,13 +147,10 @@ endif()
 
 # Input device driver type
 set(INDEV_DRV_USED        1)
-set(INDEV_DRV_USE_FT6236  0)
+set(INDEV_DRV_USE_FT6236  1)
 set(INDEV_DRV_USE_NS2009  0)
-set(INDEV_DRV_USE_TSC2007 1)
+set(INDEV_DRV_USE_TSC2007 0)
 set(INDEV_DRV_USE_GT911   0)
-
-SET(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -Wl,--print-memory-usage")
-SET(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -Wl,--print-memory-usage")
 
 include_directories(. ../include)
 
@@ -260,11 +257,7 @@ if(${PICO_BOARD} STREQUAL "pico" OR ${PICO_PLATFORM} STREQUAL "rp2040")
         set(PICO_FLASH_SPI_CLKDIV 2)
     endif()
 elseif(${PICO_BOARD} STREQUAL  "pico2" OR ${PICO_PLATFORM} STREQUAL  "rp2350")
-    if(${SYS_CLK_KHZ} GREATER 366000)
-        set(PICO_FLASH_SPI_CLKDIV 4)
-    else()
-        set(PICO_FLASH_SPI_CLKDIV 2)
-    endif()
+        set(PICO_FLASH_SPI_CLKDIV 3)
 endif()
 
 math(EXPR FLASH_CLK_KHZ "${SYS_CLK_KHZ} / ${PICO_FLASH_SPI_CLKDIV}")
